@@ -218,7 +218,6 @@ $(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackage5.mk)
 #----------------- For PDK ------------------------------
 PRODUCT_PACKAGES += \
     TestingCamera \
-    Home \
     SystemUI \
     Settings \
     libsurfaceflinger_ddmconnection
