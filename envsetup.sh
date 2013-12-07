@@ -16,9 +16,9 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - jgrep:   Greps on all local Java files.
 - resgrep: Greps on all local res/*.xml files.
 - godir:   Go to the directory containing a file.
-- cmremote: Add git remote for MagicMod Gerrit Review.
-- cmgerrit: A Git wrapper that fetches/pushes patch from/to MagicMod Gerrit Review.
-- cmrebase: Rebase a Gerrit change and push it again.
+- mmremote: Add git remote for MagicMod Gerrit Review.
+- mmgerrit: A Git wrapper that fetches/pushes patch from/to MagicMod Gerrit Review.
+- mmrebase: Rebase a Gerrit change and push it again.
 - aospremote: Add git remote for matching AOSP repository.
 - cafremote: Add git remote for matching CodeAurora repository.
 - mka:      Builds using SCHED_BATCH on all processors.
@@ -28,6 +28,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - repopick: Utility to fetch changes from Gerrit.
 - installboot: Installs a boot.img to the connected device.
 - installrecovery: Installs a recovery.img to the connected device.
+
 
 Look at the source to view more functions. The complete list is:
 EOF
@@ -1467,31 +1468,35 @@ function godir () {
     \cd $T/$pathname
 }
 
-function cmremote()
+function mmremote()
 {
-    git remote rm cmremote 2> /dev/null
+    git remote rm mmremote 2> /dev/null
     if [ ! -d .git ]
     then
         echo .git directory not found. Please run this from the root directory of the Android repository you wish to set up.
     fi
-    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com | awk '{ print $NF }' | sed s#git://github.com/##g)
+    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g)
     if [ -z "$GERRIT_REMOTE" ]
     then
-        GERRIT_REMOTE=$(cat .git/config  | grep http://github.com | awk '{ print $NF }' | sed s#http://github.com/##g)
+        GERRIT_REMOTE=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g)
         if [ -z "$GERRIT_REMOTE" ]
         then
-          echo Unable to set up the git remote, are you in the root of the repo?
-          return 0
+            GERRIT_REMOTE=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g)
+            if [ -z "$GERRIT_REMOTE" ]
+            then
+                echo Unable to set up the git remote, are you in the root of the repo?
+                return 0
+            fi
         fi
     fi
-    CMUSER=`git config --get review.review.cyanogenmod.org.username`
+    CMUSER=`git config --get review.gerrit.591fan.com.username`
     if [ -z "$CMUSER" ]
     then
-        git remote add cmremote ssh://review.cyanogenmod.org:29418/$GERRIT_REMOTE
+        git remote add mmremote ssh://gerrit.591fan.com:29418/$GERRIT_REMOTE
     else
-        git remote add cmremote ssh://$CMUSER@review.cyanogenmod.org:29418/$GERRIT_REMOTE
+        git remote add mmremote ssh://$CMUSER@gerrit.591fan.com:29418/$GERRIT_REMOTE
     fi
-    echo You can now push to "cmremote".
+    echo You can now push to "mmremote".
 }
 
 function aospremote()
@@ -1636,8 +1641,8 @@ function makerecipe() {
   if [ "$REPO_REMOTE" == "github" ]
   then
     pwd
-    cmremote
-    git push cmremote HEAD:refs/heads/'$1'
+    mmremote
+    git push mmremote HEAD:refs/heads/'$1'
   fi
   '
 
@@ -1646,12 +1651,12 @@ function makerecipe() {
   cd ..
 }
 
-function cmgerrit() {
+function mmgerrit() {
     if [ $# -eq 0 ]; then
         $FUNCNAME help
         return 1
     fi
-    local user=`git config --get review.review.cyanogenmod.org.username`
+    local user=`git config --get review.gerrit.591fan.com.username`
     local review=`git config --get remote.github.review`
     local project=`git config --get remote.github.projectname`
     local command=$1
@@ -1687,7 +1692,7 @@ EOF
             case $1 in
                 __cmg_*) echo "For internal use only." ;;
                 changes|for)
-                    if [ "$FUNCNAME" = "cmgerrit" ]; then
+                    if [ "$FUNCNAME" = "mmgerrit" ]; then
                         echo "'$FUNCNAME $1' is deprecated."
                     fi
                     ;;
@@ -1780,7 +1785,7 @@ EOF
                 $local_branch:refs/for/$remote_branch || return 1
             ;;
         changes|for)
-            if [ "$FUNCNAME" = "cmgerrit" ]; then
+            if [ "$FUNCNAME" = "mmgerrit" ]; then
                 echo >&2 "'$FUNCNAME $command' is deprecated."
             fi
             ;;
@@ -1879,15 +1884,15 @@ EOF
     esac
 }
 
-function cmrebase() {
+function mmrebase() {
     local repo=$1
     local refs=$2
     local pwd="$(pwd)"
     local dir="$(gettop)/$repo"
 
     if [ -z $repo ] || [ -z $refs ]; then
-        echo "CyanogenMod Gerrit Rebase Usage: "
-        echo "      cmrebase <path to project> <patch IDs on Gerrit>"
+        echo "MagicMod Gerrit Rebase Usage: "
+        echo "      mmrebase <path to project> <patch IDs on Gerrit>"
         echo "      The patch IDs appear on the Gerrit commands that are offered."
         echo "      They consist on a series of numbers and slashes, after the text"
         echo "      refs/changes. For example, the ID in the following command is 26/8126/2"
@@ -1902,13 +1907,13 @@ function cmrebase() {
         return
     fi
     cd $dir
-    repo=$(cat .git/config  | grep git://github.com | awk '{ print $NF }' | sed s#git://github.com/##g)
+    repo=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g)
     echo "Starting branch..."
     repo start tmprebase .
     echo "Bringing it up to date..."
     repo sync .
     echo "Fetching change..."
-    git fetch "http://review.cyanogenmod.org/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
+    git fetch "http://gerrit.591fan.com/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
     if [ "$?" != "0" ]; then
         echo "Error cherry-picking. Not uploading!"
         return
