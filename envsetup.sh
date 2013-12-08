@@ -1657,8 +1657,23 @@ function mmgerrit() {
         return 1
     fi
     local user=`git config --get review.gerrit.591fan.com.username`
-    local review=`git config --get remote.github.review`
-    local project=`git config --get remote.github.projectname`
+    #local review=`git config --get remote.github.review`
+    local review=gerrit.591fan.com
+    #local project=`git config --get remote.github.projectname`
+    local project=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+    if [ -z $project ]
+    then
+        project=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+        if [ -z $project ]
+        then
+            project=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+            if [ -z $project ]
+            then
+                echo "Can't find project $project"
+                return
+            fi
+        fi
+    fi
     local command=$1
     shift
     case $command in
