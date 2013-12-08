@@ -1907,7 +1907,20 @@ function mmrebase() {
         return
     fi
     cd $dir
-    repo=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g)
+    repo=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+    if [ -z $repo ]
+    then
+        repo=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+        if [ -z $repo ]
+        then
+            repo=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+            if [ -z $repo ]
+            then
+                echo "Can't find project $repo"
+                return
+            fi
+        fi
+    fi
     echo "Starting branch..."
     repo start tmprebase .
     echo "Bringing it up to date..."
@@ -1919,7 +1932,14 @@ function mmrebase() {
         return
     fi
     echo "Uploading..."
-    repo upload .
+    # Seems something wrong with repo upload cmd to our gerrit server, use a new way
+    #repo upload .
+    
+    #TODO
+    #I don't know how to get the target branch, so used a hardcoded name
+    #Really ugly
+    mmgerrit push tmprebase:kitkat
+
     echo "Cleaning up..."
     repo abandon tmprebase .
     cd $pwd
