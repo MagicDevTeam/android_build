@@ -1475,13 +1475,13 @@ function mmremote()
     then
         echo .git directory not found. Please run this from the root directory of the Android repository you wish to set up.
     fi
-    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g)
+    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/##g)
     if [ -z "$GERRIT_REMOTE" ]
     then
-        GERRIT_REMOTE=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g)
+        GERRIT_REMOTE=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/##g)
         if [ -z "$GERRIT_REMOTE" ]
         then
-            GERRIT_REMOTE=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g)
+            GERRIT_REMOTE=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/##g)
             if [ -z "$GERRIT_REMOTE" ]
             then
                 echo Unable to set up the git remote, are you in the root of the repo?
@@ -1660,13 +1660,13 @@ function mmgerrit() {
     #local review=`git config --get remote.github.review`
     local review=gerrit.591fan.com
     #local project=`git config --get remote.github.projectname`
-    local project=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+    local project=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/##g)
     if [ -z $project ]
     then
-        project=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+        project=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/##g)
         if [ -z $project ]
         then
-            project=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+            project=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/##g)
             if [ -z $project ]
             then
                 echo "Can't find project $project"
@@ -1922,13 +1922,13 @@ function mmrebase() {
         return
     fi
     cd $dir
-    repo=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+    repo=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/##g)
     if [ -z $repo ]
     then
-        repo=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+        repo=$(cat .git/config  | grep http://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#http://github.com/##g)
         if [ -z $repo ]
         then
-            repo=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/MagicDevTeam/##g | sed s#android_##g | sed s#_#/#g)
+            repo=$(cat .git/config  | grep https://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#https://github.com/##g)
             if [ -z $repo ]
             then
                 echo "Can't find project $repo"
@@ -1947,14 +1947,7 @@ function mmrebase() {
         return
     fi
     echo "Uploading..."
-    # Seems something wrong with repo upload cmd to our gerrit server, use a new way
-    #repo upload .
-    
-    #TODO
-    #I don't know how to get the target branch, so used a hardcoded name
-    #Really ugly
-    mmgerrit push tmprebase:kitkat
-
+    repo upload .
     echo "Cleaning up..."
     repo abandon tmprebase .
     cd $pwd
