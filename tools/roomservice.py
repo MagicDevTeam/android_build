@@ -74,7 +74,7 @@ page = 1
 while not depsonly:
     githubreq = urllib.request.Request("https://api.github.com/users/MagicDevTeam/repos?per_page=200&page=%d" % page)
     add_auth(githubreq)
-    result = json.loads(urllib.request.urlopen(githubreq).read().decode())
+    result = json.loads(unicode(urllib.request.urlopen(githubreq).read(), "utf-8"))
     if len(result) == 0:
         break
     for res in result:
