@@ -1493,9 +1493,9 @@ function mmremote()
     CMUSER=`git config --get review.gerrit.591fan.com.username`
     if [ -z "$CMUSER" ]
     then
-        git remote add mmremote ssh://gerrit.591fan.com:29418/$GERRIT_REMOTE
+        git remote add mmremote ssh://s-83274.abc188.com:29418/$GERRIT_REMOTE
     else
-        git remote add mmremote ssh://$CMUSER@gerrit.591fan.com:29418/$GERRIT_REMOTE
+        git remote add mmremote ssh://$CMUSER@s-83274.abc188.com:29418/$GERRIT_REMOTE
     fi
     echo You can now push to "mmremote".
 }
@@ -1659,7 +1659,8 @@ function mmgerrit() {
     fi
     local user=`git config --get review.gerrit.591fan.com.username`
     #local review=`git config --get remote.github.review`
-    local review=gerrit.591fan.com
+    local review=s-83274.abc188.com
+    local review_temp=s-83274.abc188.com:8080
     #local project=`git config --get remote.github.projectname`
     local project=$(cat .git/config  | grep git://github.com/MagicDevTeam | awk '{ print $NF }' | sed s#git://github.com/##g)
     if [ -z $project ]
@@ -1775,7 +1776,7 @@ EOF
             $FUNCNAME __cmg_err_not_repo && return 1
             local change=$1
             shift
-            git $command $@ http://$review/p/$project \
+            git $command $@ http://$review_temp/p/$project \
                 $($FUNCNAME __cmg_get_ref $change) || return 1
             ;;
         push)
@@ -1942,7 +1943,7 @@ function mmrebase() {
     echo "Bringing it up to date..."
     repo sync .
     echo "Fetching change..."
-    git fetch "http://gerrit.591fan.com/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
+    git fetch "http://s-83274.abc188.com:8080/p/$repo" "refs/changes/$refs" && git cherry-pick FETCH_HEAD
     if [ "$?" != "0" ]; then
         echo "Error cherry-picking. Not uploading!"
         return
